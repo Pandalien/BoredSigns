@@ -14,7 +14,8 @@
     <uses-permission android:name="android.permission.VIBRATE" />
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
     <uses-permission android:name="android.permission.WAKE_LOCK" />
-    
+    <uses-permission android:name="android.permission.RECORD_AUDIO" />
+
     <uses-feature
         android:name="android.hardware.location.network"
         android:required="false" />
@@ -101,7 +102,20 @@
         <activity
             android:name=".activities.NotSupportedActivity"
             android:theme="@style/AppTheme.Null" />
-
+        <receiver
+            android:name=".widgets.RecorderWidget"
+            android:label="@string/recorder_widget_title">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+                <action android:name="com.zacharee1.boredsigns.action.UPDATE_INFO" />
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/recorder_widget_info" />
+            <meta-data
+                android:name="com.lge.signboard.widget.description"
+                android:value="recorder_widget_desc" />
+        </receiver>
         <receiver
             android:name=".widgets.InfoWidget"
             android:label="@string/info_widget_title">
@@ -305,6 +319,11 @@
 
         <service
             android:name=".services.VolumeService"
+            android:enabled="true"
+            android:exported="true"></service>
+
+        <service
+            android:name=".services.RecorderService"
             android:enabled="true"
             android:exported="true"></service>
     </application>

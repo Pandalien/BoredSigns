@@ -81,9 +81,9 @@ class InfoWidget : AppWidgetProvider() {
         try {
             updateBattery(views, context)
             updateClock(views)
-            updateMobile(views, context, appWidgetManager, appWidgetIds)
-            updateWifi(views, context)
             updateNotifications(views)
+            updateWifi(views, context)
+            updateMobile(views, context, appWidgetManager, appWidgetIds)
         } catch (e: Exception) {}
 
         // Instruct the widget manager to update the widget
@@ -96,6 +96,7 @@ class InfoWidget : AppWidgetProvider() {
         mPrefs = PreferenceManager.getDefaultSharedPreferences(context)
     }
 
+    private val shown = mutableListOf<String?>()
     override fun onReceive(context: Context, intent: Intent?) {
         val rank = intent?.getBooleanExtra(InfoService.RANKING_LIST, false)
 
@@ -103,6 +104,7 @@ class InfoWidget : AppWidgetProvider() {
                 if (mOldRanking == null || !Arrays.equals(mOldRanking?.orderedKeys, it.orderedKeys)) {
                     mOldRanking = it
                     mRankedNotifs.clear()
+                    shown.clear()
 
                     for (ranking in it.orderedKeys) {
                         val index = it.orderedKeys.indexOf(ranking)
@@ -112,14 +114,23 @@ class InfoWidget : AppWidgetProvider() {
                                 val rankInfo: NotificationListenerService.Ranking = NotificationListenerService.Ranking()
                                 it.getRanking(ranking, rankInfo)
 
-                                val notif = notifs[index]
+                                try {
+                                    val notif: StatusBarNotification? = notifs[index]
+                                    val state = NotificationState(context, notif, rankInfo)
 
-                                val state = NotificationState(context, notif, rankInfo)
+                                    if (state.show) {
+                                        val packName: String? = notif?.packageName
 
-                                state.icon = notif?.notification?.smallIcon?.loadDrawable(context)
+                                        if (packName.isNullOrEmpty() || packName?.toLowerCase()?.contains("boredsigns") == false && !shown.contains(packName)) {
+                                            if( !packName.isNullOrEmpty() ) shown.add(packName)
 
-                                if (state.show) {
-                                    mRankedNotifs.add(state)
+                                            state.icon = notif?.notification?.smallIcon?.loadDrawable(context)
+
+                                            mRankedNotifs.add(state)
+                                        }
+                                    }
+                                } catch(e: Exception) {
+                                    // meh, just try the next notification
                                 }
                             }
                         }
@@ -229,22 +240,24 @@ class InfoWidget : AppWidgetProvider() {
 
             val hasSim = telephony.simState != TelephonyManager.SIM_STATE_ABSENT
 
-            val info = telephony.allCellInfo[0]
-            if (info is CellInfoGsm) {
-                level = info.cellSignalStrength.level
-                connected = info.isRegistered
-            }
-            if (info is CellInfoCdma) {
-                level = info.cellSignalStrength.level
-                connected = info.isRegistered
-            }
-            if (info is CellInfoWcdma) {
-                level = info.cellSignalStrength.level
-                connected = info.isRegistered
-            }
-            if (info is CellInfoLte) {
-                level = info.cellSignalStrength.level
-                connected = info.isRegistered
+            if( telephony?.allCellInfo != null && !telephony.allCellInfo.isEmpty() && telephony.allCellInfo[0] != null ) {
+                val info = telephony.allCellInfo[0]
+                if (info is CellInfoGsm) {
+                    level = info.cellSignalStrength.level
+                    connected = info.isRegistered
+                }
+                if (info is CellInfoCdma) {
+                    level = info.cellSignalStrength.level
+                    connected = info.isRegistered
+                }
+                if (info is CellInfoWcdma) {
+                    level = info.cellSignalStrength.level
+                    connected = info.isRegistered
+                }
+                if (info is CellInfoLte) {
+                    level = info.cellSignalStrength.level
+                    connected = info.isRegistered
+                }
             }
 
             telephony.listen(object : PhoneStateListener() {
@@ -477,7 +490,7 @@ class InfoWidget : AppWidgetProvider() {
                 icon = notification?.notification?.smallIcon?.loadDrawable(context)
             } catch (e: PackageManager.NameNotFoundException) {
                 val bundle = Bundle()
-                bundle.putString("message", e.localizedMessage)
+                //bundle.putString("message", e.localizedMessage)
                 bundle.putString("stacktrace", Arrays.toString(e.stackTrace))
                 bundle.putString("package", notification?.packageName)
                 FirebaseAnalytics.getInstance(context).logEvent("info_widget_package_error", bundle)

@@ -14,6 +14,13 @@
     <string name="cpu_widget_title">CPU Usage Info</string>
     <string name="ringer_widget_title">Ringer Volume Widget</string>
     <string name="media_widget_title">Media Volume Widget</string>
+    <string name="recorder_widget_title">Recorder Widget</string>
+
+    <!--Recorder Widget-->
+    <string name="record_btn_desc">Record</string>
+    <string name="play_btn_desc">Play</string>
+    <string name="stop_btn_desc">Stop</string>
+    <string name="recorder_widget_desc">Instant record and play voice recording</string>
 
     <!--Widget Summaries-->
     <string name="dev_widget_1_desc">FPS, RAM, Charge Rate</string>

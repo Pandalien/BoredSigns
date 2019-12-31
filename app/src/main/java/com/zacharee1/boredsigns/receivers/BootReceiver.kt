@@ -16,6 +16,7 @@ class BootReceiver : BroadcastReceiver() {
             Utils.sendWidgetUpdate(context, WeatherForecastWidget::class.java, null)
             Utils.sendWidgetUpdate(context, Dev1Widget::class.java, null)
             Utils.sendWidgetUpdate(context, Dev2Widget::class.java, null)
+            Utils.sendWidgetUpdate(context, RecorderWidget::class.java, null)
         }
     }
 }

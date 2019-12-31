@@ -41,6 +41,7 @@ class AODActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_aod)
 
+        //signBoardContext = createPackageContext("com.zacharee1.aospsignboard", 0)
         signBoardContext = createPackageContext("com.lge.signboard", 0)
 
         appWidgetManager = AppWidgetManager.getInstance(signBoardContext)

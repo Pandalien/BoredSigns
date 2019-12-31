@@ -68,7 +68,7 @@ class VolumeService : Service() {
 
     private val systemObserver = object : ContentObserver(Handler(Looper.getMainLooper())) {
         override fun onChange(selfChange: Boolean, uri: Uri?) {
-            if (uri!!.toString().contains("volume") || uri == Settings.Global.getUriFor(Settings.Global.ZEN_MODE)) {
+            if (uri!!.toString().contains("volume") /*|| uri == Settings.Global.getUriFor(Settings.Global.ZEN_MODE)*/ ) {
                 updateAll()
             }
         }
@@ -87,7 +87,9 @@ class VolumeService : Service() {
         contentResolver.registerContentObserver(Settings.System.CONTENT_URI, true, systemObserver)
         contentResolver.registerContentObserver(Settings.Global.CONTENT_URI, true, systemObserver)
 
-        Settings.System.VOLUME_VOICE
+        // what is even happening here?
+        // VOLUME_VOICE is unresolved..
+        //Settings.System.VOLUME_VOICE
 
         registerReceiver(receiver, FILTER)
     }
